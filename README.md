@@ -20,6 +20,8 @@ The script creates these spreadsheet columns:
 |F|The occurence with up to 40 characers before and after.|
 |G|The section heading the search hit is under.|
 
+If you see `#NAME?` errors in Excel, line in column F, try removing the first charactres of the string which are probabley a minus or equals character.
+
 ### Set up
 
 - Save RepoFind.ps1 and RFconfig.xml to a folder.
