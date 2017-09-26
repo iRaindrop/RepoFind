@@ -35,7 +35,7 @@ Disregard the `<filters>` node for now. You will soon be able to seach and filte
 
 Invoke the script with the search string as its only parameter.
 
-- Open PowerShell, and run the following command. In this example, the script and xml files are in a folder named 'RFInd' specifying "not supported by" for the search string. Be sure to include the ".`\" before the script file name.
+- Open PowerShell, and run the following command. In this example, the script and xml files are in a folder named 'RFInd' specifying "not supported by" for the search string. Be sure to include the `.\` before the script file name.
 
 ```
 PS C:\RFind> .\RepoFind.ps1 "not supported by"
