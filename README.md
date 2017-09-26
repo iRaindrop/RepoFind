@@ -20,7 +20,7 @@ The script creates these spreadsheet columns:
 |F|The occurence with up to 40 characers before and after.|
 |G|The section heading the search hit is under.|
 
-If you see `#NAME?` errors in Excel, such as in column F, try removing the first charactres of the string which are probably a minus or equals character.
+If you see `#NAME?` errors in Excel, such as in column F, try removing the first characters of the string which are probably a minus or equals character.
 
 ### Set up
 
