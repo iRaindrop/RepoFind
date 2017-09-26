@@ -6,7 +6,19 @@ Scripts for searching and managing repository content and metadata.
 
 This script creates a CSV file containing the search results on one or more repository folders. The script acts recursively on subfolders on all Markdown .md files. You can specify any search string and search one ore more folders in both the azure and sql repos. 
 
-**Only the azure-docs-pr and sql-docs-pr are currenty supported.**
+Only the **azure-docs-pr** and **sql-docs-pr** are currenty supported.
+
+The script creates these spradsheet columns:
+
+|Column|Description|
+|---|---|
+|A|URL to the published topic.|
+|B|Repo (either sql-docs-pr or azure-docs-pr).|
+|C|The last directory in the path of the search folder.|
+|D|The Markdown file name.|
+|E|The line number in the file of the search hit.|
+|F|The occurence with up to 40 characers before and after.|
+|G|The section heading the search hit is under.|
 
 ### Set up
 
