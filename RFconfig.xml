@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<configuration>
+  <startup>
+   <installdir key="dir" value="" />
+  </startup>
+  <filters>
+    <filter key="" value=""/>
+  </filters>
+  <srchFolders>
+    <folder key="fld1" value="sql-docs-pr\docs\t-sql"/>
+    <folder key="fld2" value="azure-docs-pr\articles\data-lake-store"/>
+  </srchFolders>
+</configuration>
