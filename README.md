@@ -1,6 +1,6 @@
 # RepoJack
 
-Scripts for searching metadata and content in repository files.
+Scripts for searching and managing repository content and metadata.
 
 ## RepoFind.ps1
 
