@@ -8,7 +8,7 @@ This script creates a CSV file containing the search results on one or more repo
 
 Only the **azure-docs-pr** and **sql-docs-pr** are currenty supported.
 
-The script creates these spradsheet columns:
+The script creates these spreadsheet columns:
 
 |Column|Description|
 |---|---|
