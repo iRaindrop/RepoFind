@@ -1,13 +1,12 @@
 <?xml version="1.0"?>
 <configuration>
   <startup>
-   <installdir key="dir" value="" />
+   <installdir key="dir" value="c:\Repos" />
   </startup>
-  <filters>
-    <filter key="" value=""/>
-  </filters>
   <srchFolders>
-    <folder key="fld1" value="sql-docs-pr\docs\t-sql"/>
-    <folder key="fld2" value="azure-docs-pr\articles\data-lake-store"/>
+    <folder key="fld1" value="selfhelpcontent\articles\microsoft.virtualmachine.rca.restarts"/>
+    <folder key="fld2" value="selfhelpcontent\articles\microsoft.virtualmachines.rca.agentextensions"/>
+    <folder key="fld3" value="selfhelpcontent\articles\microsoft.virtualmachines.rca.asm2arm"/>
+    <folder key="fld4" value="selfhelpcontent\articles\microsoft.virtualmachines.rca.tdp"/>
   </srchFolders>
 </configuration>
