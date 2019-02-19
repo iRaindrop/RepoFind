@@ -1,9 +1,20 @@
-﻿Class RFind
+Class RMeta
 {
-    [string]$URL
     [string]$Repo
     [string]$Folder
     [string]$FileName
+    [string]$Description
+    [string]$InfoBubbleText
+    [string]$Authors
+    [string]$DiagnosticScenario
+ }
+
+ Class RFind
+{
+    [string]$Repo
+    [string]$Folder
+    [string]$FileName
+    [string]$SearchFor
     [string]$LineNum
     [string]$Context
     [bool]$Multiple
@@ -11,11 +22,20 @@
  }
 
 $RFresults = New-Object "System.Collections.Generic.List[RFind]"
-$homeFolder = $HOME
-$rfDir = "";
+$RFmeta = New-Object "System.Collections.Generic.List[RMeta]"
+$rfDir = ""
 $curDir = (Get-Item -Path ".\" -Verbose).FullName
 $configFile = Join-Path -Path $curDir -ChildPath "rfconfig.xml"
 $sources = New-Object 'System.Collections.Generic.List[string]'
+
+
+Function Get-PropValue
+{
+    Param($linetxt)
+    $idx = $linetxt.IndexOf("=")
+    $propval = $linetxt.SubString($idx + 2)
+    return $propval.TrimEnd('"')
+ }
 if(Test-Path $configFile)
  {
     Try
@@ -39,8 +59,17 @@ if(Test-Path $configFile)
     Write-Host "Config file not valid."
  }
 
-$srchstr = $args[0]
-$lasthead = ""
+ $srchstr = $args[0]
+ if ($srchstr)
+ {
+     $metaOnly = $false
+ }
+ else {
+     $metaOnly = $true
+ }
+
+ $lasthead = ""
+
 
 Foreach ($sf in $sources)
 {
@@ -61,85 +90,101 @@ Foreach ($sf in $sources)
     $files = Get-ChildItem $mdPth -Recurse
     foreach ($file in $files) 
     {
-        $filetxt = [System.IO.File]::ReadAllText($file)
-        $ln = 1
-        if ($filetxt.ToLower().Contains($srchstr.ToString().ToLower()))  
-        {
+        if ($metaOnly) {
             $content = Get-Content $file
-            foreach($line in $content)
-            {
-                if($line.ToLower().Contains($srchstr.ToString().ToLower()))
-                {
-                    $hit = New-Object "RFind"
 
-                    # Construct the URL to published topic
-                    $idx = $repPath.IndexOf("\");
-                    $repo = $repPath.Substring(0,$idx)
-                    $hit.Repo = $repo
-                    $ridx = $file.FullName.IndexOf($repo);
-                    if ($repo -eq "sql-docs-pr")
-                    {
-                        $strt = $ridx + 17;
-                        $urlpart = "sql"
-                    }
-                    elseif ($repo -eq "azure-docs-pr")
-                    {
-                        $strt = $ridx + 23;
-                        $urlpart = "azure"
-                    }
-                    $urlx = $file.FullName.SubString($strt)
-                    $urlx = $urlx.Replace("\","/")
-                    $urlx = $urlx.TrimEnd('.','m','d')
-                    $msURL = "=HYPERLINK(`"https://docs.microsoft.com/{0}/{1}`")" -f $urlPart, $urlx
-                    $hit.URL = $msURL
-                    
-                    $hit.Multiple = $false
-                    
-
-                    # get context, 40 chars before hit and after
-                    $ix = $line.IndexOf($srchstr)
-                    if ($ix -ge 40)
-                    {
-                        $start = $ix - 40;
-                        $alpha = $line.Substring($start,40)
-                    }
-                    else
-                    {
-                        $alpha = $line.Substring(0,$ix)
-                    }
-                    $slen = $srchstr.ToString().Length
-                    if ($ix + $slen + 40 -ge $line.Length)
-                    {
-                        $rlen = $line.Length - ($ix + $slen)
-                        $omega = $line.Substring($ix + $slen,$rlen)
-                    }
-                    else
-                    {
-                        $omega = $line.Substring($ix + $slen,40)
-                    }
-                    $context = "{0}{1}{2}" -f $alpha, $srchstr, $omega
-                    $hit.Context = $context
-
-                    $hit.FileName = [System.IO.Path]::GetFileName($file)
-                    $fldr = [System.IO.Path]::GetDirectoryName($file)
-                    $hit.Folder = Split-Path -Path $fldr -Leaf
-                    $hit.LineNum = $ln
-                    $hit.Heading = $lasthead
-
-                    if ($omega.Contains($srchstr))
-                    {
-                        $hit.Multiple = $true
-                    }
- 
-                    $RFresults.Add($hit)
-
+            $inProps = $false
+            $meta = New-Object "RMeta"
+            $meta.Repo = "SelfHelpContent"
+            $meta.FileName = [System.IO.Path]::GetFileName($file)
+            $fldr = [System.IO.Path]::GetDirectoryName($file)
+            $meta.Folder = Split-Path -Path $fldr -Leaf
+            
+            foreach ($line in $content) {
+                if ($line.StartsWith("<properties")) {
+                    $inProps = $true
                 }
-                if ($line.StartsWith("#"))
-                {
-                    $ix = $line.ToString().IndexOf("# ")
-                    $lasthead = $line.Substring($ix + 1)
+                if ($line.StartsWith("/>")) { 
+                    $inProps = $false
                 }
-                $ln++
+                if ($inProps) {
+                    if ($line.Contains("description=")) {
+                        $meta.Description = Get-PropValue $line
+                    }
+                    elseif ($line.Contains("infoBubbleText=")) {
+                        $meta.InfoBubbleText = Get-PropValue $line
+                    }
+                    elseif ($line.Contains("authors=")) {
+                        $meta.Authors = Get-PropValue $line
+                    }
+                    elseif ($line.Contains("diagnosticScenario=")) {
+                        $meta.DiagnosticScenario = Get-PropValue $line
+                    }                
+                }
+            }
+            $RFmeta.Add($meta)
+        }
+        else {
+            $ln = 1
+            $filetxt = [System.IO.File]::ReadAllText($file)
+            if ($filetxt.ToLower().Contains($srchstr.ToString().ToLower())) {
+                $content = Get-Content $file
+                foreach ($line in $content) {
+                    if ($line.StartsWith("<properties")) {
+                        $inProps = $true
+                        $pastProps = $false
+                    }
+                    if ($line.StartsWith("/>")) { 
+                        $inProps = $false
+                        $pastProps = $true
+                    }
+                    
+                    if ($pastProps) {
+                        if ($line.ToLower().Contains($srchstr.ToString().ToLower())) {
+                            $hit = New-Object "RFind"
+                            $hit.Repo = "SelfHelpContent"
+                            $hit.SearchFor = $srchstr
+                            $hit.FileName = [System.IO.Path]::GetFileName($file)
+                            $fldr = [System.IO.Path]::GetDirectoryName($file)
+                            $hit.Folder = Split-Path -Path $fldr -Leaf
+                            $hit.Multiple = $false
+        
+                            # get context, 40 chars before hit and after
+                            $ix = $line.ToLower().IndexOf($srchstr.ToLower())
+                            if ($ix -ge 40) {
+                                $start = $ix - 40;
+                                $alpha = $line.Substring($start, 40)
+                            }
+                            else {
+                                $alpha = $line.Substring(0, $ix)
+                            }
+                            $slen = $srchstr.ToString().Length
+                            if ($ix + $slen + 40 -ge $line.Length) {
+                                $rlen = $line.Length - ($ix + $slen)
+                                $omega = $line.Substring($ix + $slen, $rlen)
+                            }
+                            else {
+                                $omega = $line.Substring($ix + $slen, 40)
+                            }
+                            $context = "{0}{1}{2}" -f $alpha, $srchstr, $omega
+                            $hit.Context = $context
+        
+                            $hit.LineNum = $ln
+                            $hit.Heading = $lasthead
+        
+                            if ($omega.Contains($srchstr)) {
+                                $hit.Multiple = $true
+                            }
+
+                            $RFresults.Add($hit)
+                        }
+                        if ($line.StartsWith("#")) {
+                            $ix = $line.ToString().IndexOf("# ")
+                            $lasthead = $line.Substring($ix + 1)
+                        }
+                    }
+                    $ln++
+                }
             }
         }
     }
@@ -147,20 +192,23 @@ Foreach ($sf in $sources)
 
 try
 {
-    if ($RFresults.Count -ge 0)
-    {
+    if ($RFresults.Count -gt 0) {
         $csvFile = [System.IO.Path]::Combine($curDir, "RepoFindResults.csv")
         $RFresults | Export-Csv -Path $csvFile -NoTypeInformation
         $msg = "{0} occurences found. See RepoFindResults.csv." -f $RFresults.Count
         Write-Host $msg
     }
-    else
-    {
-        Write-Host "No search results found."
+    elseif ($RFmeta.Count -gt 0) {
+        $csvFile = [System.IO.Path]::Combine($curDir, "RepoFindMetadata.csv")
+        $RFmeta | Export-Csv -Path $csvFile -NoTypeInformation
+        $msg = "{0} articles processed. See RepoFindmetadata.csv." -f $RFmeta.Count
+        Write-Host $msg
+    }
+    else {
+        Write-Host "No results found."
     }
 }
 Catch [System.IO.IOException]
 {
-    Write-Host "RFresults.csv is open, please close it."
+    Write-Host "CSV file is open, please close it."
 }
-
