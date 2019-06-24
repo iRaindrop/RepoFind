@@ -1,12 +1,11 @@
 <?xml version="1.0"?>
 <configuration>
   <startup>
-   <installdir key="dir" value="c:\Repos" />
+   <installdir key="dir1" value="c:\Repos"/>
+   <logfiledir key="dir2" value="c:\Logs"/>
   </startup>
   <srchFolders>
-    <folder key="fld1" value="selfhelpcontent\articles\microsoft.virtualmachine.rca.restarts"/>
-    <folder key="fld2" value="selfhelpcontent\articles\microsoft.virtualmachines.rca.agentextensions"/>
-    <folder key="fld3" value="selfhelpcontent\articles\microsoft.virtualmachines.rca.asm2arm"/>
-    <folder key="fld4" value="selfhelpcontent\articles\microsoft.virtualmachines.rca.tdp"/>
+    <folder key="fld1" value="selfhelpcontent\articles\microsoft.virtualmachines.rca.tdp"/>
+    <folder key="fld2" value="selfhelpcontent\articles\microsoft.virtualmachine.rca.restarts"/>
   </srchFolders>
 </configuration>
