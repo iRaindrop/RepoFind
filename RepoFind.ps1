@@ -119,6 +119,7 @@ Function Get-MonthNumber {
 
 
 $srchstr = $args[0]
+
 if ($srchstr) {
     $dataOnly = $false
 }
@@ -224,6 +225,8 @@ Foreach ($sf in $sources) {
                     if ($pastProps) {
                         if ($line.ToLower().Contains($srchstr.ToString().ToLower())) {
                             $hit = New-Object "RFind"
+                            $fldr = [System.IO.Path]::GetDirectoryName($file)
+                            $dirs = $fldr.Split('\')
                             $hit.Repo = $dirs[2]
                             $hit.SearchFor = $srchstr
                             $hit.FileName = [System.IO.Path]::GetFileName($file)
@@ -276,10 +279,10 @@ try {
     if ($RFresults.Count -gt 0) {
         $csvFile = [System.IO.Path]::Combine($curDir, "RepoFindResults.csv")
         $RFresults | Export-Csv -Path $csvFile -NoTypeInformation
-        [void]$sb.AppendLine("Search results:")
+        [void]$sb.AppendLine("Search results - file, line number:")
         [void]$sb.AppendLine()
         foreach ($rf in $RFresults) {
-            [void]$sb.AppendLine($rf.FileName + "`t" + $rf.LineNum + "`t" + $rf.Context + "`t" + $rf.Multiple);
+            [void]$sb.AppendLine($rf.FileName + "`t" + $rf.LineNum);
         } 
         Write-Host $sb.ToString()
         $msg = "{0} occurences found. See RepoFindResults.csv." -f $RFresults.Count
