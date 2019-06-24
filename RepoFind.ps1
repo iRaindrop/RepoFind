@@ -2,6 +2,7 @@ Class RData {
     [string]$Repo
     [string]$Folder
     [string]$FileName
+    [string]$GitHubLink
     [string]$Date
     [string]$ArticleId
     [string]$IssueDescription
@@ -22,7 +23,7 @@ Class RData {
     [string]$Context
     [bool]$Multiple
     [string]$Heading
- }
+}
 
 $RFresults = New-Object "System.Collections.Generic.List[RFind]"
 $RFdata = New-Object "System.Collections.Generic.List[RData]"
@@ -31,6 +32,15 @@ $curDir = (Get-Item -Path ".\" -Verbose).FullName
 $configFile = Join-Path -Path $curDir -ChildPath "rfconfig.xml"
 $sources = New-Object 'System.Collections.Generic.List[string]'
 $sb = [System.Text.StringBuilder]::new()
+
+$srchstr = $args[0]
+
+if ($srchstr) {
+    $dataOnly = $false
+}
+else {
+    $dataOnly = $true
+}
 
 if (Test-Path $configFile) {
     Try {
@@ -118,14 +128,7 @@ Function Get-MonthNumber {
 
 
 
-$srchstr = $args[0]
 
-if ($srchstr) {
-    $dataOnly = $false
-}
-else {
-    $dataOnly = $true
-}
 
 $lasthead = ""
 
@@ -153,6 +156,9 @@ Foreach ($sf in $sources) {
             $dirs = $fldr.Split('\')
             $data.Repo = $dirs[2]
             $data.Folder = Split-Path -Path $fldr -Leaf
+            $urlPart = "https://github.com/Azure/{0}/blob/master/articles/{1}/{2}" -f $data.Repo, $data.Folder, $data.FileName
+            $articleURL = "=HYPERLINK(`"{0}`",`"Link`")" -f $urlPart
+            $data.GitHubLink = $articleURL
             $lnum = 0
             $bodyParas = New-Object System.Collections.Generic.List[string]
             foreach ($line in $content) {
