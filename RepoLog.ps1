@@ -1,13 +1,13 @@
-$sources = New-Object 'System.Collections.Generic.List[string]'
-$sources.Add("microsoft.virtualmachines.rca.tdp")
-$sources.Add("microsoft.virtualmachine.rca.restarts")
-
-$repoPath = "C:\Repos\SelfHelpContent\articles"
 $logPath = "C:\Logs"
-Set-Location $repoPath
+$repoTop = "c:\Repos\SelfhelpContent"
+
+$sources = New-Object 'System.Collections.Generic.List[string]'
+$sources.Add("C:\Repos\SelfHelpContent\articles\microsoft.virtualmachine.rca.restarts")
+$sources.Add("C:\Repos\SelfHelpContent\articles\microsoft.virtualmachines.rca.tdp")
+
+Set-Location $repoTop
 Foreach ($dir in $sources) {
-    $fullPath = Join-Path -Path $repoPath -ChildPath $dir
-    $mdPth = "{0}\*.md" -f $fullPath
+    $mdPth = "{0}\*.md" -f $dir
     $files = Get-ChildItem $mdPth -Recurse
  
     foreach ($file in $files) {
@@ -19,3 +19,4 @@ Foreach ($dir in $sources) {
     }
 }
 Set-Location $logPath
+
