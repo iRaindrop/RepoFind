@@ -138,6 +138,9 @@ Foreach ($sf in $sources) {
     $files = Get-ChildItem $mdPth -Recurse
     foreach ($file in $files) {
         if ($dataOnly) {
+
+            # CREATE METADATA REPORT
+
             $content = Get-Content $file
             $inProps = $false
             $data = New-Object "RData"
@@ -150,15 +153,25 @@ Foreach ($sf in $sources) {
             $urlPart = "https://github.com/Azure/{0}/blob/master/articles/{1}/{2}" -f $data.Repo, $data.Folder, $data.FileName
             $articleURL = "=HYPERLINK(`"{0}`",`"Link`")" -f $urlPart
             $data.GitHubLink = $articleURL
-            $lnum = 0
-            $bodyParas = New-Object System.Collections.Generic.List[string]
+
+            # Get the lines of the files without blank ones
+            $paras = New-Object System.Collections.Generic.List[string]
             foreach ($line in $content) {
+                # Filter out blank lines 
+                if ($line.Length -gt 1) {
+                    $paras.Add($line)
+                }
+            }
+            
+            $gotPara1 = $false
+            $gotH2 = $false
+            $lineNum = 0
+            foreach ($line in $paras) {               
                 if ($line.StartsWith("<properties")) {
                     $inProps = $true
                 }
                 if ($line.StartsWith("/>")) { 
                     $inProps = $false
-                    $bodyStart = $lnum
                 }
                 if ($inProps) {
                     if ($line.Contains("description=")) {
@@ -169,41 +182,33 @@ Foreach ($sf in $sources) {
                     }               
                 }
                 else {
-                    if ($lnum -gt $bodyStart -and $line.Length -gt 1) {
-                        $bodyParas.Add($line)
+                    if ($line.StartsWith("# ")) {
+                        $data.Heading1 = $line                        
                     }
-                    $lnum++
+                    elseif ($line.StartsWith("<!--issueDescription-->")) {
+                        $data.IssueDescription = $paras[$lineNum + 1]
+                    }
+                    elseif ($line.StartsWith("## ") -and $gotH2 -eq $false) {
+                        $data.FirstH2 = $line
+                        $gotH2 = $true
+                    }
+                    else {
+                        if ($gotPara1 -eq $false -and $line -gt $issueLn + 2) {
+                            if (!$line.StartsWith("#")) {
+                                $data.Para1 = $line
+                                $GotPara1 = $true
+                            } 
+                        }  
+                    } 
                 }
-            }
-            $bodyLn = 0
-    
-            $gotPara1 = $false
-            $gotH2 = $false
-            foreach ($p in $bodyParas) {
-                if ($p.StartsWith("# ")) {
-                    $data.Heading1 = $p                        
-                }
-                elseif ($p.StartsWith("<!--issueDescription-->")) {
-                    $issueLn = $bodyLn + 1
-                    $data.IssueDescription = $bodyParas[$bodyLn + 1]
-                }
-                elseif ($p.StartsWith("## ") -and $gotH2 -eq $false) {
-                    $data.FirstH2 = $p
-                    $gotH2 = $true
-                }
-                else {
-                    if ($gotPara1 -eq $false -and $bodyLn -gt $issueLn + 2) {
-                        if (!$p.StartsWith("#")) {
-                            $data.Para1 = $p
-                            $GotPara1 = $true
-                        } 
-                    }  
-                } 
-                $bodyLn++                    
+                $lineNum++
             }
         
             $RFdata.Add($data)
         }
+
+        # CREATE SEARCH REPORT
+
         else {
             $ln = 1
             $filetxt = [System.IO.File]::ReadAllText($file)
