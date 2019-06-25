@@ -1,4 +1,4 @@
-# RepoJack
+# RepoFind
 
 Scripts for searching and managing repository content and metadata. The script produces two types of output:
 - Metadata
