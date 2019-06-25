@@ -27,7 +27,6 @@ Class RData {
 
 $RFresults = New-Object "System.Collections.Generic.List[RFind]"
 $RFdata = New-Object "System.Collections.Generic.List[RData]"
-$rfDir = ""
 $curDir = (Get-Item -Path ".\" -Verbose).FullName
 $configFile = Join-Path -Path $curDir -ChildPath "rfconfig.xml"
 $sources = New-Object 'System.Collections.Generic.List[string]'
@@ -124,14 +123,6 @@ Function Get-MonthNumber {
     }
     return $monthNum
 }
-
-
-
-
-
-
-$lasthead = ""
-
 
 Foreach ($sf in $sources) {
     $spath = ""
