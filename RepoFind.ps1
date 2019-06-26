@@ -2,8 +2,9 @@
 This script enumerates repo files for data and produces a data report
 using the RData class or a search results report using the RFind class.
 
-A search results report also sniffs data, but is mostly geared for finding text
-and just collects a few metadata values.
+A search results report does not report on metadata, but could
+be programmed to do so.
+
 #>
 
 
@@ -184,7 +185,11 @@ Foreach ($sf in $sources) {
 
             $content = Get-Content $file
             $data = New-Object "RData"
+
+            # Get date the file last merged to GitHub
+            # If no log file, an empty string is set
             $data.Date = Get-DateFromLog $file
+
             $data.FileName = [System.IO.Path]::GetFileName($file)
             $fldr = [System.IO.Path]::GetDirectoryName($file)
             $dirs = $fldr.Split('\')
@@ -262,22 +267,31 @@ Foreach ($sf in $sources) {
         # CREATE SEARCH REPORT
 
         else {
+            #Track line number
             $ln = 1
             $filetxt = [System.IO.File]::ReadAllText($file)
+
+            # If the search string ($srchstr) is in the file text, then
+            # seach each line to find occurrences. Strings are
+            # compared in lower case to be case-insensitive.
             if ($filetxt.ToLower().Contains($srchstr.ToString().ToLower())) {
                 $content = Get-Content $file
                 foreach ($line in $content) {
                     if ($line.StartsWith("<properties")) {
+                        # Inside the metadata block
                         $inProps = $true
                         $pastProps = $false
                     }
                     if ($line.StartsWith("/>")) { 
+                        # Oustside the metadata block
                         $inProps = $false
                         $pastProps = $true
                     }
             
                     if ($pastProps) {
+                        # Examine each line that contains the search string 
                         if ($line.ToLower().Contains($srchstr.ToString().ToLower())) {
+                            # Create data object and set properties
                             $hit = New-Object "RFind"
                             $fldr = [System.IO.Path]::GetDirectoryName($file)
                             $dirs = $fldr.Split('\')
@@ -286,9 +300,12 @@ Foreach ($sf in $sources) {
                             $hit.FileName = [System.IO.Path]::GetFileName($file)
                             $fldr = [System.IO.Path]::GetDirectoryName($file)
                             $hit.Folder = Split-Path -Path $fldr -Leaf
+                            # Multiple is true if the search string 
+                            # oocurs more than once on the same line.
                             $hit.Multiple = $false
 
-                            # get context, 20 chars before hit and after
+                            # Get context (usage) of occurence
+                            # Include 20 chars before hit and after
                             $ix = $line.ToLower().IndexOf($srchstr.ToLower())
                             if ($ix -ge 20) {
                                 $start = $ix - 20;
@@ -315,9 +332,12 @@ Foreach ($sf in $sources) {
                                 $hit.Multiple = $true
                             }
 
+                            # Add to data collection
                             $RFresults.Add($hit)
                         }
                         if ($line.StartsWith("#")) {
+                            # Gets the current heading to show
+                            # the the heading the occurence is under
                             $ix = $line.ToString().IndexOf("# ")
                             $lasthead = $line.Substring($ix + 1)
                         }
