@@ -1,9 +1,12 @@
 <#
 This script enumerates repo files for data and produces a data report
-using the RData class or a search results report using the RFind class.
+using the RData class, or a search results report using the RFind class.
 
-A search results report does not report on metadata, but could
-be programmed to do so.
+If an search string is provided as an arugment, a search results report is run. 
+Otherwise, a data report is run
+
+A data report reports on metadata and select paragrams and headings. A search result
+report also reports on metadata for a partualar occurence.
 
 #>
 
@@ -28,6 +31,7 @@ Class RFind {
     [string]$Repo
     [string]$Folder
     [string]$FileName
+    [string]$ArticleId
     [string]$SearchFor
     [string]$LineNum
     [string]$Context
@@ -181,7 +185,7 @@ Foreach ($sf in $sources) {
     foreach ($file in $files) {
         if ($dataOnly) {
 
-            # CREATE METADATA REPORT
+            # CREATE DATA REPORT
 
             $content = Get-Content $file
             $data = New-Object "RData"
@@ -227,7 +231,7 @@ Foreach ($sf in $sources) {
                 if ($inProps) {
                     # Get values for metadata properties using the Get-PropValue
                     # function defined above. To get values for other properties
-                    # add code for it here and add to the $data class. Remove if unused.
+                    # add code for it here and add to the $data class.
                     if ($line.Contains("description=")) {
                         $data.Description = Get-PropValue $line
                     }
@@ -280,19 +284,29 @@ Foreach ($sf in $sources) {
                     if ($line.StartsWith("<properties")) {
                         # Inside the metadata block
                         $inProps = $true
-                        $pastProps = $false
                     }
                     if ($line.StartsWith("/>")) { 
                         # Oustside the metadata block
                         $inProps = $false
-                        $pastProps = $true
+                    }
+                    if ($inProps) {
+                        # Get values for metadata properties using the Get-PropValue
+                        # function defined above. To get values for other properties
+                        # add code for it here and add to the $data class. Use elseif
+                        # for subsequent properties.
+                        if ($line.Contains("articleId=")) {
+                            $metaArticleID = Get-PropValue $line
+                        }               
                     }
             
-                    if ($pastProps) {
+                    else {
                         # Examine each line that contains the search string 
                         if ($line.ToLower().Contains($srchstr.ToString().ToLower())) {
+
                             # Create data object and set properties
                             $hit = New-Object "RFind"
+                            $hit.ArticleId = $metaArticleID
+
                             $fldr = [System.IO.Path]::GetDirectoryName($file)
                             $dirs = $fldr.Split('\')
                             $hit.Repo = $dirs[2]
@@ -332,14 +346,14 @@ Foreach ($sf in $sources) {
                                 $hit.Multiple = $true
                             }
 
+                            if ($line.StartsWith("#")) {
+                                # Gets the current heading to show
+                                # the the heading the occurence is under
+                                $ix = $line.ToString().IndexOf("# ")
+                                $lasthead = $line.Substring($ix + 1)
+                            }
                             # Add to data collection
                             $RFresults.Add($hit)
-                        }
-                        if ($line.StartsWith("#")) {
-                            # Gets the current heading to show
-                            # the the heading the occurence is under
-                            $ix = $line.ToString().IndexOf("# ")
-                            $lasthead = $line.Substring($ix + 1)
                         }
                     }
                     $ln++
