@@ -8,6 +8,9 @@ Otherwise, a data report is run
 A data report reports on metadata and select paragrams and headings. A search result
 report also reports on metadata for a partualar occurence.
 
+A data report has one RData object for every file, a search results report has a
+RFind object for every search result occurence.
+
 #>
 
 
@@ -185,7 +188,7 @@ Foreach ($sf in $sources) {
     foreach ($file in $files) {
         if ($dataOnly) {
 
-            # CREATE DATA REPORT
+            # CREATE DATA REPORT (RData)
 
             $content = Get-Content $file
             $data = New-Object "RData"
@@ -268,7 +271,7 @@ Foreach ($sf in $sources) {
             $RFdata.Add($data)
         }
 
-        # CREATE SEARCH REPORT
+        # CREATE SEARCH REPORT (RFind)
 
         else {
             #Track line number
