@@ -1,4 +1,4 @@
-# RepoFind
+# RepoJack
 
 Scripts for searching and managing repository content and metadata. The script produces two types of output:
 - Metadata
@@ -81,4 +81,47 @@ PS C:\RFind> .\RepoFind.ps1 "deploy a vm"
 
 The files are written to the folder that contains the script. You are alerted to the number of occurrences or if no results were found.
 
+## Manage reporting for metadata properties 
 
+To add a metadata property for reporting, add a property for it to the `RData` or `RFind` class. 
+
+For the Data (`RData`) report, add an **elseif** clause to the `if ($inProps)` block (~ ln 234) to detect if the desired property name is on the current line (`$line`), such as shown here to detect `description` and `articleId`: 
+
+```
+if ($inProps) {
+    # Get values for metadata properties using the Get-PropValue
+    # function defined above. To get values for other properties
+    # add code for it here and add to the $data class.
+    if ($line.Contains("description=")) {
+        $data.Description = Get-PropValue $line
+    }
+    elseif ($line.Contains("articleId=")) {
+        $data.ArticleId = Get-PropValue $line
+    }               
+}
+```
+Next, the script calls the `Get-PropValue` funtion that parases the metadata property value from current line and sets the result to its associated property on the class.
+
+Do similar for the Search Results (`RFind`) report (~ ln. 295).
+
+```
+if ($inProps) {
+    # Get values for metadata properties using the Get-PropValue
+    # function defined above. To get values for other properties
+    # add code for it here and add to the $data class. Use elseif
+    # for subsequent properties.
+    if ($line.Contains("articleId=")) {
+        $metaArticleID = Get-PropValue $line
+    }               
+}
+```
+
+But for this report, the value is set to a temporary variable, `$metaArticleID`, as it not known at this point if a there is a search hit to create a new `RFind` object. So it's set on the object a few lines down (~ ln 309):
+
+```
+# Create data object and set properties
+  $hit = New-Object "RFind"
+  $hit.ArticleId = $metaArticleID
+
+```
+Note that metdata property values are case sensitive.
