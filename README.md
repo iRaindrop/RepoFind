@@ -87,7 +87,7 @@ To add a metadata property for reporting, add a property for it to the `RData` o
 
 For the Data (`RData`) report, add an **elseif** clause to the `if ($inProps)` block (~ ln 234) to detect if the desired property name is on the current line (`$line`), such as shown here to detect `description` and `articleId`: 
 
-```
+```powershell
 if ($inProps) {
     # Get values for metadata properties using the Get-PropValue
     # function defined above. To get values for other properties
@@ -104,7 +104,7 @@ Next, the script calls the `Get-PropValue` funtion that parases the metadata pro
 
 Do similar for the Search Results (`RFind`) report (~ ln. 295).
 
-```
+```powershell
 if ($inProps) {
     # Get values for metadata properties using the Get-PropValue
     # function defined above. To get values for other properties
@@ -118,7 +118,7 @@ if ($inProps) {
 
 But for this report, the value is set to a temporary variable, `$metaArticleID`, as it not known at this point if a there is a search hit to create a new `RFind` object. So it's set on the object a few lines down (~ ln 309):
 
-```
+```powershell
 # Create data object and set properties
   $hit = New-Object "RFind"
   $hit.ArticleId = $metaArticleID
