@@ -1,9 +1,9 @@
 $logPath = "C:\Logs"
-$repoTop = "c:\Repos\SelfhelpContent"
+$repoTop = "c:\Repos\MyRepo"
 
 $sources = New-Object 'System.Collections.Generic.List[string]'
-$sources.Add("C:\Repos\SelfHelpContent\articles\microsoft.virtualmachine.rca.restarts")
-$sources.Add("C:\Repos\SelfHelpContent\articles\microsoft.virtualmachines.rca.tdp")
+$sources.Add("C:\Repos\MyRepo\articles\source.doc.1")
+$sources.Add("C:\Repos\MyRepo\articles\source.doc.2")
 
 Set-Location $repoTop
 Foreach ($dir in $sources) {
