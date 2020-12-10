@@ -1,6 +1,6 @@
 # RepoFind
 
-Scripts for searching and managing repository content, markdown files, and metadata. The script produces two types of output:
+This project has scripts for searching and managing repository content, markdown files, and metadata. The script produces two types of output:
 - Metadata
 - Search results
 
