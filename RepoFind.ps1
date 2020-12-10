@@ -202,7 +202,7 @@ Foreach ($sf in $sources) {
             $dirs = $fldr.Split('\')
             $data.Repo = $dirs[2]
             $data.Folder = Split-Path -Path $fldr -Leaf
-            $urlPart = "https://github.com/Azure/{0}/blob/master/articles/{1}/{2}" -f $data.Repo, $data.Folder, $data.FileName
+            $urlPart = "https://github.com/MyRepo/{0}/blob/master/articles/{1}/{2}" -f $data.Repo, $data.Folder, $data.FileName
             $articleURL = "=HYPERLINK(`"{0}`",`"Link`")" -f $urlPart
             $data.GitHubLink = $articleURL
 
