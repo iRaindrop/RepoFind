@@ -5,7 +5,7 @@
    <logfiledir key="dir2" value="c:\Logs"/>
   </startup>
   <srchFolders>
-    <folder key="fld1" value="selfhelpcontent\articles\microsoft.virtualmachines.rca.tdp"/>
-    <folder key="fld2" value="selfhelpcontent\articles\microsoft.virtualmachine.rca.restarts"/>
+    <folder key="fld1" value="github\repository\A\Folders\FolderA"/>
+    <folder key="fld2" value="github\repository\B\Folders\FolderB"/>
   </srchFolders>
 </configuration>
